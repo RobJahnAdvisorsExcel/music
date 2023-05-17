@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 3000 --strictPort --open",
+    "dev": "cross-env VITE_API_BASE_URL=https://stoplight.io/mocks/advisorsexcel/node-music-api/157460764/ VITE_ENABLE_MSW=false vite --port 3000 --strictPort --open",
+    "dev-mocks": "cross-env VITE_API_BASE_URL=http://127.0.0.1:3000/ VITE_ENABLE_MSW=true vite --port 3000 --strictPort --open",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -14,8 +15,13 @@
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^4.5.8",
     "@mui/material": "^5.13.0",
+    "@types/jsonapi-serializer": "^3.6.5",
+    "jsonapi-serializer": "^3.6.7",
+    "ky": "^0.33.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-error-boundary": "^4.0.4",
+    "react-query": "^3.39.3"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
@@ -24,12 +30,17 @@
     "@typescript-eslint/parser": "^5.57.1",
     "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.14",
+    "cross-env": "^7.0.3",
     "eslint": "^8.38.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
+    "msw": "^1.2.1",
     "postcss": "^8.4.23",
     "tailwindcss": "^3.3.2",
     "typescript": "^5.0.2",
     "vite": "^4.3.2"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }

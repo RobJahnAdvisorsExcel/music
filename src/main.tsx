@@ -6,9 +6,29 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
+import { worker } from "./mocks/browser";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { ErrorBoundary } from "react-error-boundary";
+
+if (import.meta.env.VITE_ENABLE_MSW === "true") {
+  worker.start();
+}
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      useErrorBoundary: true,
+      retry: false,
+    },
+  },
+});
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <App />
+    <ErrorBoundary fallback={<p>oops</p>}>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );
