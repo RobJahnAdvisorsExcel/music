@@ -1,9 +1,8 @@
 import { Button, CircularProgress, TextField } from "@mui/material";
 import { SongMetadata } from "./SongMetadata";
 import { Song } from "./types/Song";
-import React, { useEffect, useMemo, useState } from "react";
-import { GetSongsResponse, getSongs } from "./services/songService";
-import { useQuery } from "react-query";
+import React, { useState } from "react";
+import { useCreateSong, useGetSongs } from "./hooks/useSongs";
 
 const initialSongs: Song[] = [
   {
@@ -15,7 +14,6 @@ const initialSongs: Song[] = [
     title: "Time",
     length: "6:53",
     id: "1",
-    image: "/assets/pink-floyd-time.gif",
   },
   {
     createdBy: "admin@email.com",
@@ -26,11 +24,10 @@ const initialSongs: Song[] = [
     title: "Here Comes the Sun",
     length: "3:05",
     id: "2",
-    image: "/assets/the-beatles-abbey-road.gif",
   },
 ];
 
-type NewSong = Omit<
+export type NewSong = Omit<
   Song,
   "id" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "image"
 >;
@@ -60,8 +57,8 @@ const Stars = () => {
     <div
       className="animate-spin absolute text-8xl -z-1"
       style={{
-        left: Math.floor(Math.random() * 2000),
-        top: Math.floor(Math.random() * 1500),
+        left: Math.floor(Math.random() * 800),
+        top: Math.floor(Math.random() * 500),
       }}
     >
       *
@@ -77,6 +74,7 @@ export function App() {
   const [nextId, setNextId] = useState(3);
   const [status, setStatus] = useState<Status>("idle");
   const [touched, setTouched] = useState<Touched>({});
+
   function onChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
@@ -84,9 +82,12 @@ export function App() {
     setTimeout(() => document.getElementById(e.target.id)?.focus(), 1);
   }
 
-  const { data: songs, isLoading } = useQuery({
-    queryKey: ["songs"],
-    queryFn: getSongs,
+  const { data: songs = [], isLoading, refetch } = useGetSongs();
+
+  const songMutation = useCreateSong(() => {
+    setSong(newSong);
+    setStatus("idle");
+    refetch();
   });
 
   const errors = validate();
@@ -104,19 +105,15 @@ export function App() {
     if (Object.keys(errors).length > 0) return;
     const freshSong = {
       createdBy: "admin@email.com",
-      createdAt: "today",
-      updatedAt: "today",
+      createdAt: "2023-03-29T08:22:22Z",
+      updatedAt: "2023-03-29T08:22:22Z",
       updatedBy: "admin@email.com",
       artist: song.artist,
       title: song.title,
       length: song.length,
-      id: `${nextId}`,
-      image: "",
     };
-    setCreatedSong(freshSong);
+    songMutation.mutate(freshSong);
     setNextId(nextId + 1);
-    initialSongs.push(freshSong);
-    setSong(newSong);
     setStatus("idle");
     setTouched({});
   }
@@ -162,7 +159,6 @@ export function App() {
             <section
               key={`sec-${index}`}
               className="mb-4 bg-gradient-to-r from-green-500 via-blue-500 to-yellow-500 background-animate text-5xl bg-red-200 block w-1/2 min-w-fit p-6 border border-gray-200 rounded-lg drop-shadow-2xl hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
-              style={{ backgroundImage: song.image }}
             >
               <div
                 className="cursor-pointer background-animate bg-gradient-to-r from-red-500 via-purple-500 to-orange-500 text-3xl bg-clip-text text-transparent"
@@ -192,8 +188,6 @@ export function App() {
           );
         })
       )}
-
-      <Stars></Stars>
 
       <section>
         Song Added:

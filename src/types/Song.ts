@@ -7,5 +7,4 @@ export type Song = {
   artist: string;
   title: string;
   length: string;
-  image: string;
 };

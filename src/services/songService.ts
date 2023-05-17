@@ -1,8 +1,15 @@
-import { Deserializer } from "jsonapi-serializer";
+import { Deserializer, Serializer } from "jsonapi-serializer";
 import ky from "ky";
+import { Song } from "../types/Song";
 
-type SongResponse = {
-  type: "song";
+type NewSong = Omit<
+  Song,
+  "id" | "createdAt" | "createdBy" | "updatedAt" | "updatedBy" | "image"
+>;
+
+export type SongResponse = {
+  [x: string]: any;
+  type: "songs";
   id: string;
   attributes: {
     createdBy: string;
@@ -72,13 +79,41 @@ export type GetSongsResponse = {
   };
 };
 
-export async function getSongs(): Promise<GetSongsResponse[]> {
+export type CreateSongResponse = {
+  data: SongResponse;
+};
+
+export async function getSongs(): Promise<Song[]> {
   const resp = (await ky(import.meta.env.VITE_API_BASE_URL + "v1/songs", {
     headers: {
       accept: "application/vnd.api+json",
-      prefer: "code=500, dynamic=true",
+      prefer: "code=200, dynamic=true",
     },
   }).json()) as GetSongsResponse;
+
+  const deserializer = new Deserializer({
+    keyForAttribute: "camelCase",
+  });
+
+  return deserializer.deserialize(resp);
+}
+
+export async function createSong(newSong: NewSong): Promise<Song> {
+  const serializer = new Serializer("songs", {
+    keyForAttribute: "camelCase",
+    attributes: Object.keys(newSong),
+  });
+  const json = serializer.serialize(newSong);
+
+  const resp = (await ky
+    .post(import.meta.env.VITE_API_BASE_URL + "v1/songs", {
+      json,
+      headers: {
+        accept: "application/vnd.api+json",
+        prefer: "code=201, dynamic=true",
+      },
+    })
+    .json()) as CreateSongResponse;
 
   const deserializer = new Deserializer({
     keyForAttribute: "camelCase",

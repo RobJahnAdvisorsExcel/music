@@ -9,6 +9,7 @@ import "@fontsource/roboto/700.css";
 import { worker } from "./mocks/browser";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ErrorBoundary } from "react-error-boundary";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 if (import.meta.env.VITE_ENABLE_MSW === "true") {
   worker.start();

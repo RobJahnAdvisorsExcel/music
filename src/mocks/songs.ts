@@ -3,7 +3,7 @@ import { GetSongsResponse } from "../services/songService";
 export const songs: GetSongsResponse = {
   data: [
     {
-      type: "song",
+      type: "songs",
       id: "1",
       attributes: {
         createdBy: "admin@email.com",
@@ -16,7 +16,7 @@ export const songs: GetSongsResponse = {
       },
     },
     {
-      type: "song",
+      type: "songs",
       id: "1",
       attributes: {
         createdBy: "admin@email.com",
